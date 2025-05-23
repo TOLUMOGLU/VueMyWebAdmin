@@ -18,6 +18,7 @@
         <v-btn variant="text" color="black" @click="$emit('navigate', 'resume')">RESUME</v-btn>
         <v-btn variant="text" color="black" @click="$emit('navigate', 'projects')">PROJECTS</v-btn>
         <v-btn variant="text" color="black" @click="$emit('navigate', 'contact')">CONTACT</v-btn>
+        <v-btn variant="text" color="black" @click="logout">LOG-OUT</v-btn>
       </v-col>
 
       <v-col cols="12" class="d-flex d-md-none justify-end align-center pa-0">
@@ -47,6 +48,9 @@
         <v-list-item @click="$emit('navigate', 'contact'); drawer = false">
           <v-list-item-title>CONTACT</v-list-item-title>
         </v-list-item>
+        <v-list-item @click="logout">
+          <v-list-item-title>LOG-OUT</v-list-item-title>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
   </v-app-bar>
@@ -54,7 +58,18 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useUserStore } from '@/stores/userStore' 
+import router from '@/router';
+
 const drawer = ref(false)
+
+async function logout() {
+  const logoutstore = useUserStore();
+  logoutstore.logout();
+  router.push("/");
+  
+  
+}
 </script>
 
 <style scoped>
