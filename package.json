@@ -9,9 +9,14 @@
   },
   "dependencies": {
     "@mdi/font": "5.9.55",
+    "@vuelidate/core": "^2.0.3",
+    "@vuelidate/validators": "^2.0.4",
     "core-js": "^3.8.3",
+    "jspdf": "^3.0.1",
+    "pinia": "^3.0.2",
     "roboto-fontface": "*",
     "vue": "^3.2.13",
+    "vue-router": "^4.5.1",
     "vuetify": "^3.0.0-beta.0",
     "webfontloader": "^1.0.0"
   },
@@ -21,10 +26,13 @@
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
+    "babel-loader": "^8.4.1",
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.0.3",
     "vue-cli-plugin-vuetify": "~2.5.8",
-    "webpack-plugin-vuetify": "^2.0.0-alpha.0"
+    "vue-loader": "^17.4.2",
+    "webpack": "^5.99.9",
+    "webpack-plugin-vuetify": "^3.1.1"
   },
   "eslintConfig": {
     "root": true,
