@@ -18,11 +18,12 @@ const router = createRouter({
 })
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore();
-  const useLogIn = userStore.isLoggedIn;
-  if(!useLogIn){
-    //return next({ name: 'login'});
+  const isLoggedIn = userStore.isLoggedIn;
+
+  if (!isLoggedIn && to.name !== 'login') {
+    return next({ name: 'login' });
   }
-  console.log(useLogIn);
   next();
 });
+
 export default router
