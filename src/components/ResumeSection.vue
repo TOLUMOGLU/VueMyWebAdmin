@@ -5,6 +5,7 @@
         <h1 class="text-black"><strong>Resume</strong></h1>
       </v-col>
 
+      <!-- EXPERIENCE -->
       <v-col cols="12" md="10" lg="8" class="mb-6">
         <v-row align="center">
           <v-col cols="12" md="6" class="d-flex justify-start">
@@ -18,15 +19,14 @@
 
       <v-col cols="12" md="10" lg="8" v-for="(card, index) in experienceCards" :key="card.id" class="mb-6">
         <v-card hover style="min-height: 35vh; width: 100%; position: relative;">
-          <v-btn
-            small
-            icon
-            color="blue"
-            style="position: absolute; top: 10px; right: 10px;"
-            @click="toggleEdit('experience', index)"
-          >
-            <v-icon>mdi-pencil</v-icon>
-          </v-btn>
+          <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 8px;">
+            <v-btn small icon color="blue" @click="toggleEdit('experience', index)">
+              <v-icon>mdi-pencil</v-icon>
+            </v-btn>
+            <v-btn small icon color="red" @click="deleteCard('experience', index)">
+              <v-icon>mdi-delete</v-icon>
+            </v-btn>
+          </div>
 
           <v-card-text>
             <template v-if="card.isEditing">
@@ -47,7 +47,6 @@
               </v-row>
             </template>
             <template v-else>
-              <!-- Normal görüntü modu -->
               <v-row>
                 <v-col cols="12" md="6">
                   <v-card-title class="text-h6 pa-2">{{ card.date }}</v-card-title>
@@ -64,7 +63,7 @@
         </v-card>
       </v-col>
     </v-row>
-    
+
     <v-row justify="center" class="pa-8">
       <v-col cols="12" md="10" lg="8" class="mb-6">
         <h2 class="text-black"><strong>Education</strong></h2>
@@ -72,15 +71,14 @@
 
       <v-col cols="12" md="10" lg="8" v-for="(card, index) in educationCards" :key="card.id" class="mb-6">
         <v-card hover style="min-height: 35vh; width: 100%; position: relative;">
-          <v-btn
-            small
-            icon
-            color="blue"
-            style="position: absolute; top: 10px; right: 10px;"
-            @click="toggleEdit('education', index)"
-          >
-            <v-icon>mdi-pencil</v-icon>
-          </v-btn>
+          <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 8px;">
+            <v-btn small icon color="blue" @click="toggleEdit('education', index)">
+              <v-icon>mdi-pencil</v-icon>
+            </v-btn>
+            <v-btn small icon color="red" @click="deleteCard('education', index)">
+              <v-icon>mdi-delete</v-icon>
+            </v-btn>
+          </div>
 
           <v-card-text>
             <template v-if="card.isEditing">
@@ -159,6 +157,7 @@
   </v-container>
 </template>
 
+
 <script setup>
 import { reactive } from 'vue'
 import { jsPDF } from 'jspdf'
@@ -218,6 +217,7 @@ const skillset = reactive({
   backup: null,
 })
 
+
 function toggleEdit(section, index) {
   if (section === 'experience') {
     const card = experienceCards[index]
@@ -275,6 +275,13 @@ function cancelEdit(section, index) {
       skillset.backup = null
     }
     skillset.isEditing = false
+  }
+}
+function deleteCard(section, index) {
+  if (section === 'experience') {
+    experienceCards.splice(index, 1)
+  } else if (section === 'education') {
+    educationCards.splice(index, 1)
   }
 }
 
