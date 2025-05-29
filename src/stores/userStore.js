@@ -1,30 +1,36 @@
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
+import * as userService from '@/services/userService';
 
 export const useUserStore = defineStore('user', {
   state: () => ({
-    token: null,
-    userName: '',
-    isLoggedIn: false,
+    token: localStorage.getItem('token') || null,
+    userName: localStorage.getItem('userName') || '',
   }),
   getters: {
-    getIsLoggedIn: (state) => state.isLoggedIn,
-    getisLoggedIn: (state) => {
-      return state.token != null && state.userName !== ''
-    }
+    isLoggedIn: (state) => !!state.token && state.userName !== '',
   },
   actions: {
-    login(name) {
-      this.userName = name;
-      this.token = "123456";
-      if (this.token.length > 1) {      
-        this.isLoggedIn = true;
-      }  
+    async login(username, password) {
+      try {
+        const { token } = await userService.login(username, password);
+
+        this.token = token;
+        this.userName = username; 
+
+        localStorage.setItem('token', token);
+        localStorage.setItem('userName', username);
+
+        return true;
+      } catch (error) {
+        console.error('Giriş başarısız', error);
+        return false;
+      }
     },
     logout() {
-      this.userName = '';
       this.token = null;
-      this.isLoggedIn = false;
-      console.log("geldi");
+      this.userName = '';
+      localStorage.removeItem('token');
+      localStorage.removeItem('userName');
     }
   }
-})
+});

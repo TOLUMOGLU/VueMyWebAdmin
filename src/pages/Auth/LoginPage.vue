@@ -51,8 +51,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUserStore } from '../../stores/userStore' 
-
+import { useUserStore } from '../../stores/userStore'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -66,15 +65,24 @@ const rules = [
 ]
 
 async function submit() {
-  if (userName.value.toLowerCase() === 'azime' && password.value === '123') {
-    userStore.login({ name: userName.value }) 
-    alert('Giriş başarılı! Hoşgeldin azime 😊')
-    router.push('/dashboard')
-  } else {
-    alert('Kullanıcı adı veya şifre yanlış!')
+  loading.value = true
+  try {
+    const success = await userStore.login(userName.value, password.value)
+    if (success) {
+      alert('Giriş başarılı! Hoşgeldin ' + userName.value + ' 😊')
+      router.push('/dashboard')
+    } else {
+      alert('Kullanıcı adı veya şifre yanlış!')
+    }
+  } catch (error) {
+    alert('Sunucu hatası, lütfen tekrar deneyin.')
+  } finally {
+    loading.value = false
   }
 }
+
 </script>
+
 
 <style scoped>
 .login-wrapper {
