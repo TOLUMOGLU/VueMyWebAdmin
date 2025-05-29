@@ -21,14 +21,14 @@
           ></v-img>
 
           <div class="text-center pa-2 pa-md-6">
-            <h2 v-if="!isEditing" class="mb-1 font-weight-bold text-black">{{ name }}</h2>
-            <v-text-field v-else v-model="name" label="Ad" hide-details dense style="min-width: 250px;"></v-text-field>
+            <h2 v-if="!isEditing" class="mb-1 font-weight-bold text-black">{{ editData.fullName }}</h2>
+            <v-text-field v-else v-model="editData.fullName" label="Ad" hide-details dense style="min-width: 250px;"></v-text-field>
 
-            <h2 v-if="!isEditing" class="mb-3 font-weight-bold text-black">{{ surname }}</h2>
-            <v-text-field v-else v-model="surname" label="Soyad" hide-details dense style="min-width: 250px;"></v-text-field>
+            <h2 v-if="!isEditing" class="mb-3 font-weight-bold text-black">{{ editData.surname }}</h2>
+            <v-text-field v-else v-model="editData.surname" label="Soyad" hide-details dense style="min-width: 250px;"></v-text-field>
 
-            <h3 v-if="!isEditing" class="mb-3 font-italic">{{ title }}</h3>
-            <v-text-field v-else v-model="title" label="Ünvan" hide-details dense style="min-width: 250px;"></v-text-field>
+            <h3 v-if="!isEditing" class="mb-3 font-italic">{{ editData.title }}</h3>
+            <v-text-field v-else v-model="editData.title" label="Ünvan" hide-details dense style="min-width: 250px;"></v-text-field>
           </div>
 
           <div
@@ -59,59 +59,105 @@
             <v-btn href="#projects" rounded>Projects</v-btn>
           </div>
 
-          <p v-if="!isEditing" class="pa-2">{{ description }}</p>
-          <v-textarea v-else v-model="description" class="pa-2" auto-grow label="Hakkımda" outlined></v-textarea>
+          <p v-if="!isEditing" class="pa-2">{{ editData.description }}</p>
+          <v-textarea v-else v-model="editData.description" class="pa-2" auto-grow label="Hakkımda" outlined></v-textarea>
 
           <div class="d-flex pa-2" style="gap: 10px;">
-            <v-btn v-if="!isEditing" color="primary" @click="editProfile">Düzenle</v-btn>
+            <v-btn v-if="!isEditing" color="primary" @click="startEditing">Düzenle</v-btn>
             <template v-else>
-              <v-btn color="success" @click="saveProfile">Kaydet</v-btn>
+              <v-btn color="success" @click="saveEdit">Kaydet</v-btn>
               <v-btn color="error" @click="cancelEdit">İptal</v-btn>
             </template>
           </div>
         </v-col>
-
       </v-row>
     </v-col>
   </v-container>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive, watchEffect } from 'vue'
+import { useAboutStore } from '@/stores/aboutStore'
+
+const store = useAboutStore()
 
 const isEditing = ref(false)
 
-const name = ref('Azime')
-const surname = ref('Tolumoğlu')
-const title = ref('SOFTWARE ENGINEER')
-const description = ref(`I'm a paragraph. Click here to add your own text and edit me. It’s easy. Just click “Edit Text” or double click me to add your own content and make changes to the font. I’m a great place for you to tell a story and let your users know a little more about you.`)
+const editData = reactive({
+  aboutMeId: null,
+  fullName: '',
+  surname: '',
+  title: '',
+  description: ''
+})
 
-// Orijinal verileri sakla
-const original = {
-  name: name.value,
-  surname: surname.value,
-  title: title.value,
-  description: description.value
+async function loadData() {
+  await store.fetchAbouts()
+  const about = store.abouts.find(a => a.aboutMeId === 8) || store.abouts[0]
+  if (about) {
+    Object.assign(editData, about)
+  }
 }
 
-function editProfile() {
+function startEditing() {
+  const about = store.abouts.find(a => a.aboutMeId === 8) || store.abouts[0]
+  if (about) {
+    Object.assign(editData, about)
+  }
   isEditing.value = true
 }
 
-function saveProfile() {
+function cancelEdit() {
   isEditing.value = false
-  original.name = name.value
-  original.surname = surname.value
-  original.title = title.value
-  original.description = description.value
-  // Buraya API isteği de eklenebilir
+  const about = store.abouts.find(a => a.aboutMeId === 8) || store.abouts[0]
+  if (about) {
+    Object.assign(editData, about)
+  } else {
+    Object.assign(editData, {
+      aboutMeId: 8,
+      fullName: '',
+      surname: '',
+      title: '',
+      description: ''
+    })
+  }
 }
 
-function cancelEdit() {
-  name.value = original.name
-  surname.value = original.surname
-  title.value = original.title
-  description.value = original.description
-  isEditing.value = false
+async function saveEdit() {
+  try {
+    if (!editData.aboutMeId) {
+      alert('Veri kimliği bulunamadı. Güncelleme yapılamıyor.')
+      return
+    }
+
+    const payload = {
+      aboutMeId: editData.aboutMeId,
+      name: editData.fullName,   
+      surname: editData.surname,
+      title: editData.title,
+      description: editData.description,
+      profileImageUrl: '', 
+      skills: [] 
+    }
+
+    await store.updateAbout(editData.aboutMeId, payload)
+    await loadData()
+    isEditing.value = false
+  } catch (error) {
+    alert('Güncelleme sırasında hata oluştu: ' + (error.response?.data?.message || error.message))
+  }
 }
+
+
+loadData()
+
+watchEffect(() => {
+  if (store.abouts.length > 0 && !isEditing.value) {
+    const about = store.abouts.find(a => a.aboutMeId === 8) || store.abouts[0]
+    if (about) {
+      Object.assign(editData, about)
+    }
+  }
+})
 </script>
+
