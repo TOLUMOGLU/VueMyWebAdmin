@@ -5,12 +5,14 @@ const API_URL = 'http://localhost:5282/api/About';
 
 export const aboutUpdate = async (id, aboutData) => {
   const response = await axios.put(`${API_URL}/${id}`, aboutData)
-  return response.data
+
+  return {data:response.data, status:response.status}
+
 }
 
 export const aboutDelete = async (id) => {
   const response = await axios.delete(`${API_URL}/${id}`)
-  return response.data
+  return response.data, response.status
 }
 
 export const aboutGetAll = async () => {
