@@ -64,12 +64,13 @@
       </v-col>
     </v-row>
 
+    <!-- EDUCATION -->
     <v-row justify="center" class="pa-8">
       <v-col cols="12" md="10" lg="8" class="mb-6">
         <h2 class="text-black"><strong>Education</strong></h2>
       </v-col>
 
-      <v-col cols="12" md="10" lg="8" v-for="(card, index) in educationCards" :key="card.id" class="mb-6">
+      <v-col cols="12" md="10" lg="8" v-for="(card, index) in educationCards" :key="card?.educationId" class="mb-6">
         <v-card hover style="min-height: 35vh; width: 100%; position: relative;">
           <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 8px;">
             <v-btn small icon color="blue" @click="toggleEdit('education', index)">
@@ -81,13 +82,13 @@
           </div>
 
           <v-card-text>
-            <template v-if="card.isEditing">
+            <template v-if="card?.isEditing">
               <v-row>
                 <v-col cols="12" md="6">
-                  <v-text-field label="Date" v-model="card.date" dense></v-text-field>
-                  <v-text-field label="University" v-model="card.university" dense></v-text-field>
+                  <v-text-field label="Date" v-model="card.startDate" dense></v-text-field>
+                  <v-text-field label="University" v-model="card.schoolName" dense></v-text-field>
                   <v-text-field label="Degree" v-model="card.degree" dense></v-text-field>
-                  <v-text-field label="Location" v-model="card.location" dense></v-text-field>
+                  <v-text-field label="fieldOfStudy" v-model="card.fieldOfStudy" dense></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
                   <v-textarea label="Description" v-model="card.description" rows="5" dense></v-textarea>
@@ -101,13 +102,13 @@
             <template v-else>
               <v-row>
                 <v-col cols="12" md="6">
-                  <v-card-title class="text-h6 pa-2">{{ card.date }}</v-card-title>
-                  <v-card-subtitle class="text-subtitle-1 pa-2">{{ card.university }}</v-card-subtitle>
-                  <v-card-subtitle class="text-subtitle-1 pa-2">{{ card.degree }}</v-card-subtitle>
-                  <v-card-subtitle class="text-subtitle-1 pa-2">{{ card.location }}</v-card-subtitle>
+                  <v-card-title class="text-h6 pa-2">{{ card?.startDate }}</v-card-title>
+                  <v-card-subtitle class="text-subtitle-1 pa-2">{{ card?.schoolName }}</v-card-subtitle>
+                  <v-card-subtitle class="text-subtitle-1 pa-2">{{ card?.degree }}</v-card-subtitle>
+                  <v-card-subtitle class="text-subtitle-1 pa-2">{{ card?.fieldOfStudy }}</v-card-subtitle>
                 </v-col>
                 <v-col cols="12" md="6" class="d-flex align-center">
-                  <p class="ma-0">{{ card.description }}</p>
+                  <p class="ma-0">{{ card?.description }}</p>
                 </v-col>
               </v-row>
             </template>
@@ -116,190 +117,115 @@
       </v-col>
     </v-row>
 
+    <!-- SKILLSET -->
     <v-row justify="center" class="pa-8">
-    <v-col cols="12" md="10" lg="8" class="mb-6">
-      <v-card hover style="min-height: 55vh; width: 100%; position: relative;">
-        
-        <!-- Butonlar yan yana grup halinde -->
-        <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 8px;">
-          <v-btn
-            small
-            icon
-            color="blue"
-            @click="toggleEdit('skillset')"
-          >
-            <v-icon>mdi-pencil</v-icon>
-          </v-btn>
-          <v-btn
-            small
-            icon
-            color="red"
-            @click="deleteCard('education', index)"
-          >
-            <v-icon>mdi-delete</v-icon>
-          </v-btn>
-        </div>
+      <v-col cols="12" md="10" lg="8" class="mb-6">
+        <v-card hover style="min-height: 55vh; width: 100%; position: relative;">
+          <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 8px;">
+            <v-btn small icon color="blue" @click="toggleEdit('skillset')">
+              <v-icon>mdi-pencil</v-icon>
+            </v-btn>
+          </div>
 
-        <v-card-text>
-          <template v-if="skillset.isEditing">
-            <v-text-field label="Title" v-model="skillset.title" dense></v-text-field>
-            <v-text-field label="Subtitle" v-model="skillset.subtitle" dense></v-text-field>
-            <v-textarea label="Description" v-model="skillset.description" rows="6" dense></v-textarea>
-            <v-row justify="end" class="mt-2">
-              <v-btn color="success" @click="saveEdit('skillset')">Kaydet</v-btn>
-              <v-btn color="error" class="ml-2" @click="cancelEdit('skillset')">İptal</v-btn>
-            </v-row>
-          </template>
-          <template v-else>
-            <v-row>
-              <v-col cols="12" md="6">
-                <v-card-title class="text-h6">{{ skillset.title }}</v-card-title>
-                <v-card-subtitle class="text-subtitle-1">{{ skillset.subtitle }}</v-card-subtitle>
-              </v-col>
-              <v-col cols="12" md="6" class="d-flex align-center">
-                <p>{{ skillset.description }}</p>
-              </v-col>
-            </v-row>
-          </template>
-        </v-card-text>
-      </v-card>
-    </v-col>
-  </v-row>
-
+          <v-card-text>
+            <template v-if="skillset.isEditing">
+              <v-text-field label="Title" v-model="skillset.title" dense></v-text-field>
+              <v-text-field label="Subtitle" v-model="skillset.subtitle" dense></v-text-field>
+              <v-textarea label="Description" v-model="skillset.description" rows="6" dense></v-textarea>
+              <v-row justify="end" class="mt-2">
+                <v-btn color="success" @click="saveEdit('skillset')">Kaydet</v-btn>
+                <v-btn color="error" class="ml-2" @click="cancelEdit('skillset')">İptal</v-btn>
+              </v-row>
+            </template>
+            <template v-else>
+              <v-row>
+                <v-col cols="12" md="6">
+                  <v-card-title class="text-h6">{{ skillset.title }}</v-card-title>
+                  <v-card-subtitle class="text-subtitle-1">{{ skillset.subtitle }}</v-card-subtitle>
+                </v-col>
+                <v-col cols="12" md="6" class="d-flex align-center">
+                  <p>{{ skillset.description }}</p>
+                </v-col>
+              </v-row>
+            </template>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
-
 <script setup>
-import { reactive } from 'vue'
+import { ref } from 'vue'
 import { jsPDF } from 'jspdf'
+import { useEducationStore } from '@/stores/educationStore'
 
-// Kartlar verisi - deneysel olarak reactive ile tutuyoruz
-const experienceCards = reactive([
-  {
-    id: 1,
-    date: '2035 - Present',
-    position: 'JOB POSITION',
-    company: 'Company Name',
-    location: 'Company Location',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    isEditing: false,
-    backup: null,
-  },
-  {
-    id: 2,
-    date: '2035 - Present',
-    position: 'JOB POSITION',
-    company: 'Company Name',
-    location: 'Company Location',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    isEditing: false,
-    backup: null,
-  }
-])
+const store = useEducationStore()
+const educationCards = ref([])
+const experienceCards = ref([])
+const skillset = ref({ title: '', subtitle: '', description: '', isEditing: false })
 
-const educationCards = reactive([
-  {
-    id: 1,
-    date: '2020 - 2024',
-    university: 'UNIVERSITY NAME',
-    degree: 'Degree Level',
-    location: 'University Location',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    isEditing: false,
-    backup: null,
-  },
-  {
-    id: 2,
-    date: '2020 - 2024',
-    university: 'UNIVERSITY NAME',
-    degree: 'Degree Level',
-    location: 'University Location',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    isEditing: false,
-    backup: null,
-  }
-])
-
-const skillset = reactive({
-  title: 'Professional skillset',
-  subtitle: 'Card subtitle secondary text',
-  description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-  isEditing: false,
-  backup: null,
-})
-
-
-function toggleEdit(section, index) {
-  if (section === 'experience') {
-    const card = experienceCards[index]
-    if (!card.isEditing) {
-      card.backup = {...card} // Yedekle
-    }
-    card.isEditing = !card.isEditing
-  } else if (section === 'education') {
-    const card = educationCards[index]
-    if (!card.isEditing) {
-      card.backup = {...card}
-    }
-    card.isEditing = !card.isEditing
-  } else if (section === 'skillset') {
-    if (!skillset.isEditing) {
-      skillset.backup = {...skillset}
-    }
-    skillset.isEditing = !skillset.isEditing
-  }
+async function loadData() {
+  await store.fetchEducations()
+  educationCards.value = store.educations.map(card => ({ ...card, isEditing: false }))
 }
 
-function saveEdit(section, index) {
-  if (section === 'experience') {
-    const card = experienceCards[index]
-    card.isEditing = false
-    card.backup = null
-  } else if (section === 'education') {
-    const card = educationCards[index]
-    card.isEditing = false
-    card.backup = null
+function toggleEdit(section, index) {
+  if (section === 'education') {
+    educationCards.value[index].isEditing = true
   } else if (section === 'skillset') {
-    skillset.isEditing = false
-    skillset.backup = null
+    skillset.value.isEditing = true
   }
 }
 
 function cancelEdit(section, index) {
-  if (section === 'experience') {
-    const card = experienceCards[index]
-    if (card.backup) {
-      Object.assign(card, card.backup)
-      card.backup = null
+  if (section === 'education') {
+    const original = store.educations.find(e => e.educationId === educationCards.value[index].educationId)
+    if (original) {
+      educationCards.value[index] = { ...original, isEditing: false }
     }
-    card.isEditing = false
-  } else if (section === 'education') {
-    const card = educationCards[index]
-    if (card.backup) {
-      Object.assign(card, card.backup)
-      card.backup = null
-    }
-    card.isEditing = false
   } else if (section === 'skillset') {
-    if (skillset.backup) {
-      Object.assign(skillset, skillset.backup)
-      skillset.backup = null
-    }
-    skillset.isEditing = false
+    skillset.value.isEditing = false
   }
 }
-function deleteCard(section, index) {
-  if (section === 'experience') {
-    experienceCards.splice(index, 1)
-  } else if (section === 'education') {
-    educationCards.splice(index, 1)
+
+async function saveEdit(section, index) {
+  if (section === 'education') {
+    const card = educationCards.value[index]
+    const payload = {
+      educationId: card.educationId,
+      schoolName: card.schoolName?.trim() || '',
+      degree: card.degree?.trim() || '',
+      fieldOfStudy: card.fieldOfStudy?.trim() || '',
+      startDate: formatDate(card.startDate),
+      endDate: card.endDate ? formatDate(card.endDate) : null,
+      description: card.description?.trim() || ''
+    }
+    console.info('Gönderilen payload:', payload)
+
+    try {
+      await store.updateEducation(card.educationId, payload)
+      educationCards.value[index].isEditing = false
+    } catch (error) {
+      console.error('Eğitim güncellenirken hata oluştu:', error)
+      alert('Güncelleme sırasında bir hata oluştu.')
+    }
+  } else if (section === 'skillset') {
+    skillset.value.isEditing = false
   }
+}
+
+function formatDate(date) {
+  if (!date) return ''
+  const d = new Date(date)
+  return d.toISOString().split('T')[0]
 }
 
 function downloadPDF() {
   const doc = new jsPDF()
-  doc.text("Azime Tolumoglu", 10, 10)
+  doc.text('Azime Tolumoglu', 10, 10)
   doc.save('azime_tolumoglu_cv')
 }
+
+loadData()
 </script>
