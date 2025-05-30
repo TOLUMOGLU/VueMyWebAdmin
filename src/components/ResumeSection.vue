@@ -32,9 +32,9 @@
             <template v-if="card.isEditing">
               <v-row>
                 <v-col cols="12" md="6">
-                  <v-text-field label="Date" v-model="card.date" dense></v-text-field>
-                  <v-text-field label="Job Position" v-model="card.position" dense></v-text-field>
-                  <v-text-field label="Company" v-model="card.company" dense></v-text-field>
+                  <v-text-field label="Date" v-model="card.startDate" dense></v-text-field>
+                  <v-text-field label="Job Position" v-model="card.jobTitle" dense></v-text-field>
+                  <v-text-field label="Company" v-model="card.companyName" dense></v-text-field>
                   <v-text-field label="Location" v-model="card.location" dense></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
@@ -49,10 +49,10 @@
             <template v-else>
               <v-row>
                 <v-col cols="12" md="6">
-                  <v-card-title class="text-h6 pa-2">{{ card.date }}</v-card-title>
-                  <v-card-subtitle class="text-subtitle-1 pa-2">{{ card.position }}</v-card-subtitle>
-                  <v-card-subtitle class="text-subtitle-1 pa-2">{{ card.company }}</v-card-subtitle>
-                  <v-card-subtitle class="text-subtitle-1 pa-2">{{ card.location }}</v-card-subtitle>
+                  <v-card-title class="text-h6 pa-2">{{ card?.startDate }}</v-card-title>
+                  <v-card-subtitle class="text-subtitle-1 pa-2">{{ card?.jobTitle }}</v-card-subtitle>
+                  <v-card-subtitle class="text-subtitle-1 pa-2">{{ card?.companyName }}</v-card-subtitle>
+                  <v-card-subtitle class="text-subtitle-1 pa-2">{{ card?.location }}</v-card-subtitle>
                 </v-col>
                 <v-col cols="12" md="6" class="d-flex align-center">
                   <p class="ma-0">{{ card.description }}</p>
@@ -159,8 +159,11 @@
 import { ref } from 'vue'
 import { jsPDF } from 'jspdf'
 import { useEducationStore } from '@/stores/educationStore'
+import { useExperienceStore } from '@/stores/experienceStore'
 
 const store = useEducationStore()
+const store2 = useExperienceStore()
+
 const educationCards = ref([])
 const experienceCards = ref([])
 const skillset = ref({ title: '', subtitle: '', description: '', isEditing: false })
@@ -168,12 +171,17 @@ const skillset = ref({ title: '', subtitle: '', description: '', isEditing: fals
 async function loadData() {
   await store.fetchEducations()
   educationCards.value = store.educations.map(card => ({ ...card, isEditing: false }))
+
+  await store2.fetchExperiences()
+  experienceCards.value = store2.experiences.map(card => ({ ...card, isEditing: false }))
 }
 
 function toggleEdit(section, index) {
   if (section === 'education') {
     educationCards.value[index].isEditing = true
-  } else if (section === 'skillset') {
+  } else if(section == 'experience') 
+    experienceCards.value[index].isEditing = true
+  else if (section === 'skillset') {
     skillset.value.isEditing = true
   }
 }
@@ -184,7 +192,15 @@ function cancelEdit(section, index) {
     if (original) {
       educationCards.value[index] = { ...original, isEditing: false }
     }
-  } else if (section === 'skillset') {
+  } else if (section === 'experience'){
+    const original = store2.experiences.find(e => e.experienceId === experienceCards.value[index].experienceId)
+    if (original) {
+      experienceCards.value[index] = { ...original, isEditing: false }
+    }
+  }
+
+
+  else if (section === 'skillset') {
     skillset.value.isEditing = false
   }
 }
@@ -210,7 +226,8 @@ async function saveEdit(section, index) {
       console.error('Eğitim güncellenirken hata oluştu:', error)
       alert('Güncelleme sırasında bir hata oluştu.')
     }
-  } else if (section === 'skillset') {
+  } 
+  else if (section === 'skillset') {
     skillset.value.isEditing = false
   }
 }
