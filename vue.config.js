@@ -6,7 +6,6 @@ module.exports = defineConfig({
 
   pluginOptions: {
     vuetify: {
-      // vuetify-loader options
     }
   },
 
