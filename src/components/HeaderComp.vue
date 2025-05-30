@@ -66,9 +66,7 @@ const drawer = ref(false)
 async function logout() {
   const logoutstore = useUserStore();
   logoutstore.logout();
-  router.push("/");
-  
-  
+  router.push("/"); 
 }
 </script>
 

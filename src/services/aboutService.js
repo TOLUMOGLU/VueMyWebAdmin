@@ -12,11 +12,11 @@ export const aboutUpdate = async (id, aboutData) => {
 
 export const aboutDelete = async (id) => {
   const response = await axios.delete(`${API_URL}/${id}`)
-  return response.data, response.status
+  return {data:response.data, status:response.status}
 }
 
 export const aboutGetAll = async () => {
   const response = await axios.get(API_URL)
-  return response.data
+  return {data:response.data, status:response.status}
 }
 
