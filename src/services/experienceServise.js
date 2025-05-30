@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5282/api/Education';
+const API_URL = 'http://localhost:5282/api/Experience';
 
 export const experienceUpdate = async (id, experienceData) => {
    const response = await axios.put(`${API_URL}/${id}`, experienceData)

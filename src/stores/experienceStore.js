@@ -12,7 +12,7 @@ export const useExperienceStore = defineStore('experience', {
       this.isLoading = true
       this.error = null
       try {
-        const response = await experienceService.aboutGetAll()
+        const response = await experienceService.experienceGetAll()
         const data = response.data
         const status = response.status
         this.experiences = data
@@ -29,7 +29,7 @@ export const useExperienceStore = defineStore('experience', {
       this.isLoading = true
       this.error = null
       try {
-        const response = await experienceService.updateExperience(id, experienceData)
+        const response = await experienceService.experienceUpdate(id, experienceData)
         const data = response.data
         const status = response.status
 
