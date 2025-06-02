@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import * as experienceService from '@/services/experienceServise'
+import * as experienceService from '@/services/experienceService'
 
 export const useExperienceStore = defineStore('experience', {
   state: () => ({
@@ -52,7 +52,7 @@ export const useExperienceStore = defineStore('experience', {
       this.isLoading = true
       this.error = null
       try {
-        const response = await experienceService.aboutDelete(id)
+        const response = await experienceService.experienceDelete(id)
         const data = response.data
         const status = response.status
 
@@ -65,6 +65,24 @@ export const useExperienceStore = defineStore('experience', {
       } finally {
         this.isLoading = false
       }
-    }
+    },
+
+    async postExperience(newExperienceData) {
+        this.isLoading = true
+        this.error = null
+        try {
+          const response = await experienceService.experiencePost(newExperienceData)
+          const data = response.data
+          const status = response.status
+          this.experiences.push(data)
+          return { data, status }
+        } catch (err) {
+          this.error = err
+          throw err
+        } finally {
+          this.isLoading = false
+        }
+      }
+
   }
 })

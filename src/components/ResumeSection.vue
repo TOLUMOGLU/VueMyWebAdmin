@@ -8,8 +8,11 @@
       <!-- EXPERIENCE -->
       <v-col cols="12" md="10" lg="8" class="mb-6">
         <v-row align="center">
-          <v-col cols="12" md="6" class="d-flex justify-start">
-            <h2 class="text-black mb-0"><strong>Experience</strong></h2>
+          <v-col cols="12" md="6" class="d-flex justify-start align-center">
+            <h2 class="text-black mb-0 mr-2"><strong>Experience</strong></h2>
+            <v-btn small icon color="blue" @click="addbutton('experience')">
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
           </v-col>
           <v-col cols="12" md="6" class="d-flex justify-end">
             <v-btn color="primary" @click="downloadPDF" rounded>DOWNLOAD CV</v-btn>
@@ -17,7 +20,7 @@
         </v-row>
       </v-col>
 
-      <v-col cols="12" md="10" lg="8" v-for="(card, index) in experienceCards" :key="card.id" class="mb-6">
+      <v-col cols="12" md="10" lg="8" v-for="(card, index) in experienceCards" :key="card.experienceId || `temp-${index}`" class="mb-6">
         <v-card hover style="min-height: 35vh; width: 100%; position: relative;">
           <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 8px;">
             <v-btn small icon color="blue" @click="toggleEdit('experience', index)">
@@ -66,11 +69,14 @@
 
     <!-- EDUCATION -->
     <v-row justify="center" class="pa-8">
-      <v-col cols="12" md="10" lg="8" class="mb-6">
-        <h2 class="text-black"><strong>Education</strong></h2>
+      <v-col cols="12" md="10" lg="8" class="d-flex justify-start align-center">
+        <h2 class="text-black mb-0 mr-2"><strong>Education</strong></h2>
+        <v-btn small icon color="blue" @click="addbutton('education')">
+          <v-icon>mdi-plus</v-icon>
+        </v-btn>
       </v-col>
 
-      <v-col cols="12" md="10" lg="8" v-for="(card, index) in educationCards" :key="card?.educationId" class="mb-6">
+      <v-col cols="12" md="10" lg="8" v-for="(card, index) in educationCards" :key="card.educationId || `temp-education-${index}`" class="mb-6">
         <v-card hover style="min-height: 35vh; width: 100%; position: relative;">
           <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 8px;">
             <v-btn small icon color="blue" @click="toggleEdit('education', index)">
@@ -160,13 +166,22 @@ import { ref } from 'vue'
 import { jsPDF } from 'jspdf'
 import { useEducationStore } from '@/stores/educationStore'
 import { useExperienceStore } from '@/stores/experienceStore'
+import { useSkillsetStore } from '@/stores/skillsetStore'
 
 const store = useEducationStore()
 const store2 = useExperienceStore()
+const store3 = useSkillsetStore()
 
 const educationCards = ref([])
 const experienceCards = ref([])
-const skillset = ref({ title: '', subtitle: '', description: '', isEditing: false })
+const skillset = ref({
+  title: '',
+  subtitle: '',
+  description: '',
+  skillsetUrl: '',
+  category: '',
+  isEditing: false
+})
 
 async function loadData() {
   await store.fetchEducations()
@@ -174,6 +189,67 @@ async function loadData() {
 
   await store2.fetchExperiences()
   experienceCards.value = store2.experiences.map(card => ({ ...card, isEditing: false }))
+
+  await store3.fetchSkillsets()
+  skillset.value = { ...store3.skillset, isEditing: false } 
+}
+
+function addbutton(section) {
+  if (section === 'experience') {
+    experienceCards.value.push({
+      experienceId: null,       // henüz id yok, backend'den alacak yeni kayıtta
+      companyName: '',
+      jobTitle: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      description: '',
+      technologiesUsed: [],
+      isEditing: true           // hemen düzenlenebilir olsun
+    })
+  } else if (section === 'education')
+    educationCards.value.push({
+      educationId: null,
+      schoolName: '',
+      degree: '',
+      fieldOfStudy: '',
+      startDate: '',
+      endDate: '',
+      description: '',
+      isEditing: true
+    })
+}
+
+
+async function deleteCard(section, index) {
+  if (section === 'experience') {
+    const card = experienceCards.value[index];
+    if (!card || !card.experienceId) {
+      experienceCards.value.splice(index, 1);
+      return;
+    }
+    try {
+      await store2.deleteExperience(card.experienceId);
+      experienceCards.value.splice(index, 1);
+    } catch (error) {
+      console.error('Deneyim silinirken hata oluştu:', error);
+      alert('Silme sırasında bir hata oluştu.');
+    }
+
+  }else if (section === 'education') {
+    const card = educationCards.value[index];
+    if (!card || !card.educationId) {
+      educationCards.value.splice(index, 1);
+      return;
+    }
+    try {
+      await store.deleteEducation(card.educationId);
+      educationCards.value.splice(index, 1);
+    } catch (error) {
+      console.error('Eğitim silinirken hata oluştu:', error);
+      alert('Silme sırasında bir hata oluştu.');
+    }
+  }
 }
 
 function toggleEdit(section, index) {
@@ -198,8 +274,6 @@ function cancelEdit(section, index) {
       experienceCards.value[index] = { ...original, isEditing: false }
     }
   }
-
-
   else if (section === 'skillset') {
     skillset.value.isEditing = false
   }
@@ -209,7 +283,6 @@ async function saveEdit(section, index) {
   if (section === 'education') {
     const card = educationCards.value[index]
     const payload = {
-      educationId: card.educationId,
       schoolName: card.schoolName?.trim() || '',
       degree: card.degree?.trim() || '',
       fieldOfStudy: card.fieldOfStudy?.trim() || '',
@@ -220,17 +293,71 @@ async function saveEdit(section, index) {
     console.info('Gönderilen payload:', payload)
 
     try {
-      await store.updateEducation(card.educationId, payload)
-      educationCards.value[index].isEditing = false
+      if (!card.educationId) {
+        const newData = await store.postEducation(payload)
+        educationCards.value[index] = { ...newData.data, isEditing: false }
+      } else {
+        // Var olan kaydı güncelle - PUT/PATCH
+        await store.updateEducation(card.educationId, payload)
+        educationCards.value[index].isEditing = false
+      }
     } catch (error) {
-      console.error('Eğitim güncellenirken hata oluştu:', error)
-      alert('Güncelleme sırasında bir hata oluştu.')
+      console.error('Eğitim kaydedilirken hata oluştu:', error)
+      alert('Kaydetme sırasında bir hata oluştu.')
+    }
+  } 
+  else if (section === 'experience') {
+    const card = experienceCards.value[index]
+    const payload = {
+      companyName: card.companyName?.trim() || '',
+      jobTitle: card.jobTitle?.trim() || '',
+      location: card.location?.trim() || '',
+      startDate: formatDate(card.startDate),
+      endDate: card.endDate ? formatDate(card.endDate) : null,
+      description: card.description?.trim() || '',
+      technologiesUsed: card.technologiesUsed || []
+    }
+    console.info('Gönderilen payload:', payload)
+    try {
+      if (!card.experienceId) {
+        const newData = await store2.postExperience(payload)
+        experienceCards.value[index] = { ...newData.data, isEditing: false }
+      } else {
+        await store2.updateExperience(card.experienceId, payload)
+        experienceCards.value[index].isEditing = false
+      }
+    } catch (error) {
+      console.error('Deneyim kaydedilirken hata oluştu:', error)
+      alert('Kaydetme sırasında bir hata oluştu.')
     }
   } 
   else if (section === 'skillset') {
-    skillset.value.isEditing = false
+    const card = experienceCards.value[index]
+    const payload = {
+      companyName: card.companyName?.trim() || '',
+      jobTitle: card.jobTitle?.trim() || '',
+      location: card.location?.trim() || '',
+      startDate: formatDate(card.startDate),
+      endDate: card.endDate ? formatDate(card.endDate) : null,
+      description: card.description?.trim() || '',
+      technologiesUsed: card.technologiesUsed || []
+    }
+    console.info('Gönderilen payload:', payload)
+    try {
+      if (!card.experienceId) {
+        const newData = await store2.postExperience(payload)
+        experienceCards.value[index] = { ...newData.data, isEditing: false }
+      } else {
+        await store2.updateExperience(card.experienceId, payload)
+        experienceCards.value[index].isEditing = false
+      }
+    } catch (error) {
+      console.error('Deneyim kaydedilirken hata oluştu:', error)
+      alert('Kaydetme sırasında bir hata oluştu.')
+    }
   }
 }
+
 
 function formatDate(date) {
   if (!date) return ''
