@@ -20,4 +20,3 @@ export const experiencePost = async (payload) => {
   const response = await axios.post(API_URL, payload)
   return { data: response.data, status: response.status }
 }
-
