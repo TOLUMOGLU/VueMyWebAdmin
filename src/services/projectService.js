@@ -10,6 +10,12 @@ export const projectUpdate = async (id, projectData) => {
 
 }
 
+export const projectPost = async (newData) => {
+  const response = await axios.post(API_URL, newData)
+  return {data: response.data, status: response.status}
+ 
+}
+
 export const projectDelete = async (id) => {
   const response = await axios.delete(`${API_URL}/${id}`)
   return {data:response.data, status:response.status}
