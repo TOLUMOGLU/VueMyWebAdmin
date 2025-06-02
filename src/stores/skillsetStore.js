@@ -3,20 +3,19 @@ import * as skillsetService from '@/services/skillsetService';
 
 export const useSkillsetStore = defineStore('skillset', {
   state: () => ({
-    experiences: [],
+    skillset: null,
     isLoading: false,
     error: null,
   }),
+
   actions: {
     async fetchSkillsets() {
       this.isLoading = true;
       this.error = null;
       try {
         const response = await skillsetService.skillsetGetAll();
-        const data = response.data;
-        const status = response.status;
-        this.experiences = data;
-        return { data, status };
+        this.skillset = response.data;
+        return response;
       } catch (err) {
         this.error = err;
         throw err;
@@ -30,15 +29,8 @@ export const useSkillsetStore = defineStore('skillset', {
       this.error = null;
       try {
         const response = await skillsetService.skillsetUpdate(id, skillsetData);
-        const data = response.data;
-        const status = response.status;
-
-        const index = this.experiences.findIndex(exp => exp.experienceId === id);
-        if (index !== -1) {
-          this.experiences[index] = data;
-        }
-
-        return { data, status };
+        this.skillset = response.data;
+        return response;
       } catch (err) {
         this.error = err;
         throw err;
@@ -52,11 +44,8 @@ export const useSkillsetStore = defineStore('skillset', {
       this.error = null;
       try {
         const response = await skillsetService.skillsetDelete(id);
-        const data = response.data;
-        const status = response.status;
-
-        this.experiences = this.experiences.filter(exp => exp.experienceId !== id);
-        return { data, status };
+        this.skillset = null;
+        return response;
       } catch (err) {
         this.error = err;
         throw err;
@@ -65,15 +54,13 @@ export const useSkillsetStore = defineStore('skillset', {
       }
     },
 
-    async postSkillset(newExperienceData) {
+    async postSkillset(newData) {
       this.isLoading = true;
       this.error = null;
       try {
-        const response = await skillsetService.skillsetPost(newExperienceData);
-        const data = response.data;
-        const status = response.status;
-        this.experiences.push(data);
-        return { data, status };
+        const response = await skillsetService.skillsetPost(newData);
+        this.skillset = response.data;
+        return response;
       } catch (err) {
         this.error = err;
         throw err;
