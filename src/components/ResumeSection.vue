@@ -331,31 +331,30 @@ async function saveEdit(section, index) {
       alert('Kaydetme sırasında bir hata oluştu.')
     }
   } 
-  else if (section === 'skillset') {
-    const card = experienceCards.value[index]
-    const payload = {
-      companyName: card.companyName?.trim() || '',
-      jobTitle: card.jobTitle?.trim() || '',
-      location: card.location?.trim() || '',
-      startDate: formatDate(card.startDate),
-      endDate: card.endDate ? formatDate(card.endDate) : null,
-      description: card.description?.trim() || '',
-      technologiesUsed: card.technologiesUsed || []
-    }
-    console.info('Gönderilen payload:', payload)
-    try {
-      if (!card.experienceId) {
-        const newData = await store2.postExperience(payload)
-        experienceCards.value[index] = { ...newData.data, isEditing: false }
-      } else {
-        await store2.updateExperience(card.experienceId, payload)
-        experienceCards.value[index].isEditing = false
+    else if (section === 'skillset') {
+      const card = skillset.value
+      const payload = {
+        title: card.title?.trim() || '',
+        subtitle: card.subtitle?.trim() || '',
+        description: card.description?.trim() || '',
+        skillsetUrl: card.skillsetUrl || '',
+        category: card.category || ''
       }
-    } catch (error) {
-      console.error('Deneyim kaydedilirken hata oluştu:', error)
-      alert('Kaydetme sırasında bir hata oluştu.')
+      console.info('Gönderilen payload:', payload)
+      try {
+        if (!card.id) {
+          const newData = await store3.postSkillset(payload)
+          skillset.value = { ...newData.data, isEditing: false }
+        } else {
+          await store3.updateSkillset(card.id, payload)
+          skillset.value.isEditing = false
+        }
+      } catch (error) {
+        console.error('Skillset kaydedilirken hata oluştu:', error)
+        alert('Kaydetme sırasında bir hata oluştu.')
+      }
     }
-  }
+
 }
 
 
