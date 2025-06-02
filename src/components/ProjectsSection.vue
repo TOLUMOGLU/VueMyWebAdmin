@@ -110,7 +110,7 @@ const loadData = async () => {
 
 function addbutton(){
   projects.value.push({
-   experienceId: null, 
+    projectId: null, 
     title: '',
     description: '',
     imageUrl: '',
@@ -152,7 +152,7 @@ async function saveProject(index) {
     imageUrl: card.imageUrl || '',
     projectUrl: card.projectUrl || '',
     category: card.category || '',
-    createdAt: formatDate(card.startDate),
+    createdAt: formatDate(card.createdAt),
   }
   
 
@@ -181,11 +181,11 @@ console.log("Local Projects:", projects.value)
 })
 
 function formatDate(date) {
-  if (!date) return ''
-  const d = new Date(date)
-  return d.toISOString().split('T')[0]
+  if (!date) return new Date().toISOString(); // Eğer tarih yoksa şu anki zamanı gönder
+  // Eğer date zaten string ise, Date objesine çevir
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return d.toISOString();
 }
-
 console.log("Store Projects:", store.projects)
 console.log("Local Projects:", projects.value)
 
