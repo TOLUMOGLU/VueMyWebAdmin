@@ -63,6 +63,23 @@ export const useEducationStore = defineStore('education', {
       } finally {
         this.isLoading = false
       }
-    }
+    },
+
+    async postEducation(newEducationData) {
+      this.isLoading = true
+            this.error = null
+            try {
+              const response = await educationService.educationPost(newEducationData)
+              const data = response.data
+              const status = response.status
+              this.educations.push(data)
+              return { data, status }
+            } catch (err) {
+              this.error = err
+              throw err
+            } finally {
+              this.isLoading = false
+            }
+          } 
   }
 })
