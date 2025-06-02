@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app class="bg-blue">
     <HeaderComp v-if="!isAuthPage" />
 
     <v-main class="fill-height">
