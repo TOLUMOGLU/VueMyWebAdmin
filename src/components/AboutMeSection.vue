@@ -2,7 +2,7 @@
   <v-container
     fluid
     class="pa-0 d-flex align-center justify-center"
-    style="background: linear-gradient(to right, #f2eae3 33.3%, white 33.3%); min-height: 100vh;"
+    style="background: linear-gradient(to right, white 33.3%, white 33.3%); min-height: 100vh;"
   >
     <v-col class="pa-12" cols="12" md="10" style="height: auto;">
       <v-row no-gutters style="height: 100%;">
@@ -10,7 +10,7 @@
           cols="12"
           md="4"
           class="d-flex flex-column align-center justify-center pa-8 ma-0"
-          style="background-color: #e6dace; min-height: 60vh; position: relative; border-radius: 0;"
+          style="background-color: #1976D2; min-height: 60vh; position: relative; border-radius: 0;"
         >
           <v-img
             src="https://avatars.mds.yandex.net/i?id=2a00000179f5ece0391cd85e6c09c8dfb4fb-4914134-images-thumbs&n=13"
@@ -33,7 +33,7 @@
 
           <div
             class="d-flex justify-center align-center"
-            style="gap: 16px; background-color: white; width: 100%; margin-top: auto; padding: 0; position: absolute; bottom: 0; left: 0; border-top: 1px solid #a99f8f; border-radius: 0 0 12px 12px;"
+            style="gap: 16px; background-color: white; width: 100%; margin-top: auto; padding: 0; position: absolute; bottom: 0; left: 0; border-top: 1px solid #a99f8f; border-radius: 0px;"
           >
             <v-btn icon variant="text" href="https://www.linkedin.com/in/azime-tolumo%C4%9Flu/" target="_blank" rel="noopener">
               <font-awesome-icon :icon="['fab', 'linkedin']" size="lg" />

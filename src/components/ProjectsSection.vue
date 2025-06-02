@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="pa-0" style="background-color: #f2eae3; min-height: 100vh;">
+  <v-container fluid class="pa-0" style="background-color: white; min-height: 100vh;">
     <v-row justify="center" class="pa-8">
       <v-col cols="12" class="text-center mb-8 pt-12">
         <h1 class="text-black"><strong>Projects</strong></h1>
