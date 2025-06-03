@@ -10,7 +10,7 @@
           I'm a paragraph. Click here to add your own text and edit me. It’s easy. Just click “Edit Text”
           or double click me to add your own content and make changes to the font.
         </p>
-        <v-btn small icon color="blue" @click="addbutton()">
+        <v-btn small icon color="blue" class="mt-4" @click="addbutton()">
           <v-icon>mdi-plus</v-icon>
         </v-btn>
       </v-col>
@@ -29,12 +29,12 @@
               <v-col cols="12" md="6" class="pa-6">
                 <div v-if="!project.isEditing">
                   <v-card-title class="text-h6 pa-4">{{ project.title }}</v-card-title>
-                  <v-card-subtitle class="text-subtitle-1 pa-4">{{ project.title }}</v-card-subtitle>
+                  <v-card-subtitle class="text-subtitle-1 pa-4">{{ project.category }}</v-card-subtitle>
                   <p class="pa-4">{{ project.description }}</p>
                 </div>
                 <div v-else>
                   <v-text-field v-model="project.title" label="Project Title" class="pa-2" />
-                  <v-text-field v-model="project.title" label="Role Title" class="pa-2" />
+                  <v-text-field v-model="project.category" label="Category" class="pa-2" />
                   <v-textarea v-model="project.description" label="Description" class="pa-2" />
                 </div>
 
