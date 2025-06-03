@@ -20,3 +20,12 @@ export const aboutGetAll = async () => {
   return {data:response.data, status:response.status}
 }
 
+export const uploadBase64Image = async (base64String) => {
+  const response = await axios.post(
+    'http://localhost:5282/api/About/upload-base64',
+    { base64Image: base64String }
+  );
+
+  return response.data.imageUrl; // örneğin "/uploads/upload_123abc.jpg"
+};
+
