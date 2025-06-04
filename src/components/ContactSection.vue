@@ -20,35 +20,29 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted} from 'vue'
+import { useContactStore } from '@/stores/contactStore'
 
 // Tablo başlıkları
 const headers = [
-  { title: 'Ad', value: 'firstName' },
-  { title: 'Soyad', value: 'lastName' },
+  { title: 'Ad Soyad', value: 'name' },
   { title: 'Email', value: 'email' },
-  { title: 'Seçilen', value: 'select' },
   { title: 'Mesaj', value: 'message' },
-  { title: 'Onayladı mı?', value: 'checkbox' },
 ]
 
-// Sahte veri örneği
-const contacts = ref([
-  {
-    firstName: 'Ahmet',
-    lastName: 'Yılmaz',
-    email: 'ahmet@example.com',
-    select: 'Item 2',
-    message: 'Merhaba!',
-    checkbox: true,
-  },
-  {
-    firstName: 'Zeynep',
-    lastName: 'Demir',
-    email: 'zeynep@example.com',
-    select: 'Item 1',
-    message: 'Yardım alabilir miyim?',
-    checkbox: false,
-  },
-])
+const store = useContactStore()
+const contacts = ref([])
+
+const loadData = async () => {
+  await store.fetchContacts()
+  contacts.value = store.contacts.map(contact => ({
+    ...contact,
+    isEditing: false
+  }))
+}
+onMounted(() => {
+  loadData()
+
+})
+
 </script>
