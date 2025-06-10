@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API_URL = 'http://localhost:5282/api/About';
-
+const backendBaseUrl = 'http://localhost:5282';
 
 export const aboutUpdate = async (id, aboutData) => {
   const response = await axios.put(`${API_URL}/${id}`, aboutData)
@@ -20,12 +20,21 @@ export const aboutGetAll = async () => {
   return {data:response.data, status:response.status}
 }
 
-export const uploadBase64Image = async (base64String) => {
-  const response = await axios.post(
-    'http://localhost:5282/api/About/upload-base64',
-    { base64Image: base64String }
-  );
+export async function uploadImageFile(file) {
+  const formData = new FormData();
+  formData.append('file', file);  
 
-  return response.data.imageUrl; // örneğin "/uploads/upload_123abc.jpg"
-};
+  const response = await fetch(backendBaseUrl + '/api/About/upload-image', {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Dosya yüklenemedi');
+  }
+
+  const data = await response.json();
+  return data.imageUrl;  
+}
 

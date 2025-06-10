@@ -13,7 +13,7 @@
           style="background-color: #1976D2; min-height: 60vh; position: relative; border-radius: 0;">
 
           <v-img
-            :src="imageUrl || editData.profileImageUrl || defaultImage"
+            :src="computedImageUrl  || defaultImage"
             alt="Azime Tolumoğlu"
             class="mb-4 pa-2 pa-md-6"
             cover
@@ -84,8 +84,17 @@
 </template>
 
 <script setup>
-import { ref, reactive, watchEffect } from 'vue'
+import { ref, reactive, watchEffect, computed  } from 'vue'
 import { useAboutStore } from '@/stores/aboutStore'
+
+const backendBaseUrl = "http://localhost:5282";
+
+const computedImageUrl = computed(() => {
+  if (!editData.profileImageUrl) return defaultImage;
+  if (editData.profileImageUrl.startsWith('http')) return editData.profileImageUrl;
+  return backendBaseUrl + (editData.profileImageUrl.startsWith('/') ? '' : '/') + editData.profileImageUrl;
+});
+
 
 const defaultImage = "https://avatars.mds.yandex.net/i?id=2a00000179f5ece0391cd85e6c09c8dfb4fb-4914134-images-thumbs&n=13"
 
@@ -112,34 +121,31 @@ async function onFileSelected(event) {
   const file = event.target.files[0];
   if (!file) return;
 
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    const base64 = e.target.result;
-    imageUrl.value = base64; // geçici olarak gösteriyoruz
+  try {
+    // Dosyayı direkt file olarak gönderiyoruz
+    const uploadedUrl = await store.uploadImageFile(file);
 
-    try {
-      const uploadedUrl = await store.uploadImage(base64); // base64 string gönderiyoruz
-      editData.profileImageUrl = uploadedUrl;
-      imageUrl.value = ''; // upload sonrası local base64'yi temizle
+    editData.profileImageUrl = uploadedUrl;
+    imageUrl.value = backendBaseUrl + (uploadedUrl.startsWith('/') ? '' : '/') + uploadedUrl;
 
-      // Fotoğraf URL'sini backend'de güncelle
-      const payload = {
-        aboutMeId: editData.aboutMeId,
-        name: editData.name,
-        surname: editData.surname,
-        title: editData.title,
-        description: editData.description,
-        profileImageUrl: uploadedUrl,
-        skills: [] 
-      }
-      await store.updateAbout(editData.aboutMeId, payload);
+        // Backend'deki diğer bilgileri güncelle
+        const payload = {
+      aboutMeId: editData.aboutMeId,
+      name: editData.name,
+      surname: editData.surname,
+      title: editData.title,
+      description: editData.description,
+      profileImageUrl: editData.profileImageUrl,
+      skills: []  
+    };
 
-      await loadData(); 
-    } catch (error) {
-      alert('Fotoğraf yüklenemedi: ' + error.message)
-    }
-  };
-  reader.readAsDataURL(file);
+
+    await store.updateAbout(editData.aboutMeId, payload);
+    await loadData();
+
+  } catch (error) {
+    alert('Fotoğraf yüklenemedi: ' + error.message);
+  }
 }
 
 async function loadData() {
@@ -147,6 +153,7 @@ async function loadData() {
   const about = store.abouts.find(a => a.aboutMeId === 8) || store.abouts[0]
   if (about) {
     Object.assign(editData, about)
+    imageUrl.value = about.profileImageUrl 
   }
 }
 
