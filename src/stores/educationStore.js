@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import * as educationService from '@/services/educationService'
+import { useUserStore } from './userStore'
 
 export const useEducationStore = defineStore('education', {
   state: () => ({
@@ -29,7 +30,10 @@ export const useEducationStore = defineStore('education', {
       this.isLoading = true
       this.error = null
       try {
-        const response = await educationService.educationUpdate(id, educationData)
+        const userStore = useUserStore()
+        const token = userStore.token
+
+        const response = await educationService.educationUpdate(id, educationData, token)
         const data = response.data
         const status = response.status
 
@@ -51,7 +55,10 @@ export const useEducationStore = defineStore('education', {
       this.isLoading = true
       this.error = null
       try {
-        const response = await educationService.educationDelete(id)
+        const userStore = useUserStore()
+        const token = userStore.token
+
+        const response = await educationService.educationDelete(id, token)
         const data = response.data
         const status = response.status
 
@@ -69,7 +76,10 @@ export const useEducationStore = defineStore('education', {
       this.isLoading = true
             this.error = null
             try {
-              const response = await educationService.educationPost(newEducationData)
+              const userStore = useUserStore()
+              const token = userStore.token
+
+              const response = await educationService.educationPost(newEducationData, token)
               const data = response.data
               const status = response.status
               this.educations.push(data)

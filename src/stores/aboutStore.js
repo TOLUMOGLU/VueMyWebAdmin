@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import * as aboutService from '@/services/aboutService'
+import { useUserStore } from './userStore'
+
 
 const STORAGE_KEY = 'about-store'
 
@@ -40,7 +42,10 @@ export const useAboutStore = defineStore('about', {
       this.isLoading = true
       this.error = null
       try {
-        const updated = await aboutService.aboutUpdate(id, aboutData)
+        const userStore = useUserStore()
+        const token = userStore.token
+
+        const updated = await aboutService.aboutUpdate(id, aboutData, token)
         const data = updated.data
         const status = updated.status
 
@@ -60,7 +65,10 @@ export const useAboutStore = defineStore('about', {
       this.isLoading = true
       this.error = null
       try {
-        const response = await aboutService.aboutDelete(id)
+        const userStore = useUserStore()
+        const token = userStore.token
+
+        const response = await aboutService.aboutDelete(id, token)
         const data = response.data
         const status = response.status
 
@@ -74,21 +82,5 @@ export const useAboutStore = defineStore('about', {
         this.isLoading = false
       }
     },
-
-    async uploadImageFile(file) {
-  this.isLoading = true;
-  this.error = null;
-
-  try {
-    const imageUrl = await aboutService.uploadImageFile(file);  // burada aboutService'den çağrılıyor
-    return imageUrl;
-  } catch (err) {
-    this.error = err;
-    throw err;
-  } finally {
-    this.isLoading = false;
-  }
-},
-
   }
 })
