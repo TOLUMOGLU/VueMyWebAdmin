@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import * as imageService from '@/services/imageService'
+import { useUserStore } from './userStore'
 
 const STORAGE_KEY = 'image-store'
 
@@ -23,7 +24,10 @@ export const useImageStore = defineStore('image', {
         this.error = null;
 
         try {
-            const imageUrl = await imageService.uploadImageFile(file);  // burada aboutService'den çağrılıyor
+           const userStore = useUserStore()
+            const token = userStore.token
+
+            const imageUrl = await imageService.uploadImageFile(file, token);  // burada aboutService'den çağrılıyor
             return imageUrl;
         } catch (err) {
             this.error = err;

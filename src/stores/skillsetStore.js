@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import * as skillsetService from '@/services/skillsetService';
+import { useUserStore } from './userStore'
 
 export const useSkillsetStore = defineStore('skillset', {
   state: () => ({
@@ -28,7 +29,10 @@ export const useSkillsetStore = defineStore('skillset', {
       this.isLoading = true;
       this.error = null;
       try {
-        const response = await skillsetService.skillsetUpdate(id, skillsetData);
+        const userStore = useUserStore()
+        const token = userStore.token
+
+        const response = await skillsetService.skillsetUpdate(id, skillsetData, token);
         this.skillset = response.data;
         return response;
       } catch (err) {
@@ -43,7 +47,10 @@ export const useSkillsetStore = defineStore('skillset', {
       this.isLoading = true;
       this.error = null;
       try {
-        const response = await skillsetService.skillsetDelete(id);
+        const userStore = useUserStore()
+        const token = userStore.token
+
+        const response = await skillsetService.skillsetDelete(id, token);
         this.skillset = null;
         return response;
       } catch (err) {
@@ -58,7 +65,10 @@ export const useSkillsetStore = defineStore('skillset', {
       this.isLoading = true;
       this.error = null;
       try {
-        const response = await skillsetService.skillsetPost(newData);
+        const userStore = useUserStore()
+        const token = userStore.token
+
+        const response = await skillsetService.skillsetPost(newData, token);
         this.skillset = response.data;
         return response;
       } catch (err) {

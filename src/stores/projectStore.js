@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import * as projectService from '@/services/projectService'
+import { useUserStore } from './userStore'
 
 export const useProjectStore = defineStore('project', {
   state: () => ({
@@ -30,7 +31,10 @@ export const useProjectStore = defineStore('project', {
       this.isLoading = true
       this.error = null
       try {
-        const updated = await projectService.projectUpdate(id, projectData)
+        const userStore = useUserStore()
+        const token = userStore.token
+
+        const updated = await projectService.projectUpdate(id, projectData, token)
         const data = updated.data
         const status = updated.status
 
@@ -50,7 +54,10 @@ export const useProjectStore = defineStore('project', {
       this.isLoading = true
             this.error = null
             try {
-              const response = await projectService.projectPost(payload)
+              const userStore = useUserStore()
+              const token = userStore.token
+
+              const response = await projectService.projectPost(payload, token)
               const data = response.data
               const status = response.status
               this.projects.push(data)
@@ -67,7 +74,10 @@ export const useProjectStore = defineStore('project', {
     this.isLoading = true
     this.error = null
     try {
-        const response = await projectService.projectDelete(id)
+        const userStore = useUserStore()
+        const token = userStore.token
+
+        const response = await projectService.projectDelete(id, token)
         const data = response.data
         const status = response.status
 

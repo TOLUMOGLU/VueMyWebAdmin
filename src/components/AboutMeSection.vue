@@ -86,8 +86,7 @@
 <script setup>
 import { ref, reactive, watchEffect, computed  } from 'vue'
 import { useAboutStore } from '@/stores/aboutStore'
-
-const backendBaseUrl = "http://localhost:5282";
+import { useImageStore } from '@/stores/imagesStore'
 
 const computedImageUrl = computed(() => {
   if (!editData.profileImageUrl) return defaultImage;
@@ -95,13 +94,14 @@ const computedImageUrl = computed(() => {
   return backendBaseUrl + (editData.profileImageUrl.startsWith('/') ? '' : '/') + editData.profileImageUrl;
 });
 
-
+const backendBaseUrl = "http://localhost:5282"
 const defaultImage = "https://avatars.mds.yandex.net/i?id=2a00000179f5ece0391cd85e6c09c8dfb4fb-4914134-images-thumbs&n=13"
 
 const imageUrl = ref('') 
 const fileInput = ref(null)
 
 const store = useAboutStore()
+const store2 = useImageStore()
 const isEditing = ref(false)
 
 const editData = reactive({
@@ -123,7 +123,7 @@ async function onFileSelected(event) {
 
   try {
     // Dosyayı direkt file olarak gönderiyoruz
-    const uploadedUrl = await store.uploadImageFile(file);
+    const uploadedUrl = await store2.uploadImageFile(file);
 
     editData.profileImageUrl = uploadedUrl;
     imageUrl.value = backendBaseUrl + (uploadedUrl.startsWith('/') ? '' : '/') + uploadedUrl;
