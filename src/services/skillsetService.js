@@ -15,3 +15,8 @@ export const skillsetGetAll = async () => {
   const response = await axios.get(API_URL)
   return {data:response.data, status:response.status}
 }
+
+export const skillsetPost = async (data) => {
+  const response = await axios.post(API_URL, data);
+  return response.data;
+}; 

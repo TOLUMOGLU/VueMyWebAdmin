@@ -75,19 +75,20 @@ export const useAboutStore = defineStore('about', {
       }
     },
 
-    async uploadImage(base64Image) {
-      this.isLoading = true
-      this.error = null
+    async uploadImageFile(file) {
+  this.isLoading = true;
+  this.error = null;
 
-      try {
-        const imageUrl = await aboutService.uploadBase64Image(base64Image)
-        return imageUrl
-      } catch (err) {
-        this.error = err
-        throw err
-      } finally {
-        this.isLoading = false
-      }
-    }
+  try {
+    const imageUrl = await aboutService.uploadImageFile(file);  // burada aboutService'den çağrılıyor
+    return imageUrl;
+  } catch (err) {
+    this.error = err;
+    throw err;
+  } finally {
+    this.isLoading = false;
+  }
+},
+
   }
 })
