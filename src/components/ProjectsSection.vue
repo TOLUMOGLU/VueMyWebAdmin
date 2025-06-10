@@ -10,14 +10,14 @@
           I'm a paragraph. Click here to add your own text and edit me. It’s easy. Just click “Edit Text”
           or double click me to add your own content and make changes to the font.
         </p>
-        <v-btn small icon color="blue" class="mt-4" @click="addbutton()">
+        <v-btn small icon color="blue" class="mt-4" @click="addbutton">
           <v-icon>mdi-plus</v-icon>
         </v-btn>
       </v-col>
 
       <v-col
         v-for="(project, index) in projects"
-        :key="index"
+        :key="project.projectId || index"
         cols="12"
         md="10"
         lg="8"
@@ -38,51 +38,46 @@
                   <v-textarea v-model="project.description" label="Description" class="pa-2" />
                 </div>
 
-                <v-btn
-                  v-if="!project.isEditing"
-                  color="primary"
-                  class="ma-2"
-                  @click="project.isEditing = true"
-                >
+                <v-btn v-if="!project.isEditing" color="primary" class="ma-2" @click="project.isEditing = true">
                   Düzenle
                 </v-btn>
 
-                <v-btn
-                  v-else
-                  color="success"
-                  class="ma-2"
-                  @click="saveProject(index)"
-                >
+                <v-btn v-else color="success" class="ma-2" @click="saveProject(index)">
                   Kaydet
                 </v-btn>
 
-                <v-btn
-                  v-if="project.isEditing"
-                  color="grey"
-                  class="ma-2"
-                  @click="cancelEdit(index)"
-                >
+                <v-btn v-if="project.isEditing" color="grey" class="ma-2" @click="cancelEdit(index)">
                   İptal
                 </v-btn>
 
-                <v-btn
-                 v-else
-                  color="error"
-                  class="ma-2"
-                  @click="deleteProject(index)"
-                >
+                <v-btn v-else color="error" class="ma-2" @click="deleteProject(index)">
                   Sil
                 </v-btn>
-
-
               </v-col>
 
-              <v-col cols="12" md="6" class="d-flex align-center justify-end">
+              <v-col cols="12" md="6" class="d-flex align-center justify-end" style="position: relative;">
                 <img
-                  class="pa-0"
-                  :src="project.image"
+                  :src="project.imageUrl ? backendBaseUrl + '/' + project.imageUrl : defaultImage"
                   alt="Project image"
                   style="max-width: 100%; height: auto;"
+                />
+
+                <v-btn
+                  small
+                  icon
+                  color="blue"
+                  style="position: absolute; top: 8px; right: 8px;"
+                  @click="triggerFileInput(index)"
+                >
+                  <v-icon>mdi-plus</v-icon>
+                </v-btn>
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  style="display: none"
+                  :ref="el => setFileInputRef(index, el)"
+                  @change="onFileSelected(index, $event)"
                 />
               </v-col>
             </v-row>
@@ -96,21 +91,51 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useProjectStore } from '@/stores/projectStore'
+import { useImageStore } from '@/stores/imagesStore'
+
+const backendBaseUrl = "http://localhost:5282"
+const defaultImage = 'https://via.placeholder.com/150'
 
 const store = useProjectStore()
-const projects = ref([])
+const store2 = useImageStore()
 
-const loadData = async () => {
-  await store.fetchProjects()
-  projects.value = store.projects.map(project => ({
-    ...project,
-    isEditing: false
-  }))
+const projects = ref([])
+const fileInputs = ref([])
+
+function setFileInputRef(index, el) {
+  if (el) fileInputs.value[index] = el
 }
 
-function addbutton(){
+function triggerFileInput(index) {
+  const input = fileInputs.value[index]
+  if (input) input.click()
+}
+
+async function onFileSelected(index, event) {
+  const file = event.target.files[0]
+  if (!file) return
+
+  try {
+    const uploadedUrl = await store2.uploadImageFile(file)
+    projects.value[index].imageUrl = uploadedUrl
+
+    const payload = {
+      ...projects.value[index],
+      imageUrl: uploadedUrl,
+      createdAt: formatDate(projects.value[index].createdAt),
+    }
+
+    if (projects.value[index].projectId) {
+      await store.updateProject(projects.value[index].projectId, payload)
+    }
+  } catch (error) {
+    alert('Fotoğraf yüklenemedi: ' + error.message)
+  }
+}
+
+function addbutton() {
   projects.value.push({
-    projectId: null, 
+    projectId: null,
     title: '',
     description: '',
     imageUrl: '',
@@ -128,24 +153,23 @@ function cancelEdit(index) {
   }
 }
 
-async function deleteProject(index){
-  const card = projects.value[index];
-  if(!card || !card.projectId){
-    projects.value.splice(index, 1);
-    return;
+async function deleteProject(index) {
+  const card = projects.value[index]
+  if (!card || !card.projectId) {
+    projects.value.splice(index, 1)
+    return
   }
   try {
-      await store.deleteProject(card.projectId);
-      projects.value.splice(index, 1);
-    } catch (error) {
-      console.error('Proje silinirken hata oluştu:', error);
-      alert('Silme sırasında bir hata oluştu.');
-    }
+    await store.deleteProject(card.projectId)
+    projects.value.splice(index, 1)
+  } catch (error) {
+    console.error('Proje silinirken hata oluştu:', error)
+    alert('Silme sırasında bir hata oluştu.')
+  }
 }
 
 async function saveProject(index) {
   const card = projects.value[index]
-
   const payload = {
     title: card.title?.trim() || '',
     description: card.description?.trim() || '',
@@ -154,9 +178,6 @@ async function saveProject(index) {
     category: card.category || '',
     createdAt: formatDate(card.createdAt),
   }
-  
-
-  console.info('Gönderilen payload:', payload)
 
   try {
     if (!card.projectId) {
@@ -172,21 +193,21 @@ async function saveProject(index) {
   }
 }
 
+function formatDate(date) {
+  if (!date) return new Date().toISOString()
+  const d = typeof date === 'string' ? new Date(date) : date
+  return d.toISOString()
+}
+
+const loadData = async () => {
+  await store.fetchProjects()
+  projects.value = store.projects.map(project => ({
+    ...project,
+    isEditing: false
+  }))
+}
 
 onMounted(() => {
   loadData()
-  console.log("Store Projects:", store.projects)
-console.log("Local Projects:", projects.value)
-
 })
-
-function formatDate(date) {
-  if (!date) return new Date().toISOString(); // Eğer tarih yoksa şu anki zamanı gönder
-  // Eğer date zaten string ise, Date objesine çevir
-  const d = typeof date === 'string' ? new Date(date) : date;
-  return d.toISOString();
-}
-console.log("Store Projects:", store.projects)
-console.log("Local Projects:", projects.value)
-
 </script>
