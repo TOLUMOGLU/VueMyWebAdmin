@@ -4,7 +4,7 @@ import { useUserStore } from './userStore'
 
 export const useSkillsetStore = defineStore('skillset', {
   state: () => ({
-    skillset: null,
+    skillset: [],
     isLoading: false,
     error: null,
   }),

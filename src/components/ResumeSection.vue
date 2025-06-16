@@ -125,39 +125,40 @@
 
     <!-- SKILLSET -->
     <v-row justify="center" class="pa-8">
-      <v-col cols="12" md="10" lg="8" class="mb-6">
-        <v-card hover style="min-height: 55vh; width: 100%; position: relative;">
-          <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 8px;">
-            <v-btn small icon color="blue" @click="toggleEdit('skillset')">
-              <v-icon>mdi-pencil</v-icon>
-            </v-btn>
-          </div>
+    <v-col cols="12" md="10" lg="8" class="mb-6">
+      <v-card hover style="min-height: 55vh; width: 100%; position: relative;">
+        <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 8px;">
+          <v-btn small icon color="blue" @click="toggleEdit('skillset')">
+            <v-icon>mdi-pencil</v-icon>
+          </v-btn>
+        </div>
+        <v-card-text>
+            <template v-if="skillset.some(item => item.isEditing)">
+            <div v-for="(item, index) in skillset" :key="item.id || index" class="mb-4">
+              <v-text-field label="Title" v-model="item.title" dense></v-text-field>
+              <v-text-field label="Subtitle" v-model="item.subtitle" dense></v-text-field>
+              <v-textarea label="Description" v-model="item.description" rows="4" dense></v-textarea>
+              <v-divider class="my-4" />
+            </div>
+            <v-row justify="end" class="mt-2">
+              <v-btn color="success" @click="saveEdit('skillset')">Kaydet</v-btn>
+              <v-btn color="error" class="ml-2" @click="cancelEdit('skillset')">İptal</v-btn>
+            </v-row>
+          </template>
+          <template v-else>
+            <div v-for="(item, index) in skillset" :key="item.id || index" class="mb-4">
+              <v-card-title class="text-h6">{{ item.title }}</v-card-title>
+              <v-card-subtitle class="text-subtitle-1">{{ item.subtitle }}</v-card-subtitle>
+              <p>{{ item.description }}</p>
+              <v-divider class="my-4" />
+            </div>
+          </template>
+        </v-card-text>
+      </v-card>
+    </v-col>
+  </v-row>
 
-          <v-card-text>
-            <template v-if="skillset.isEditing">
-              <v-text-field label="Title" v-model="skillset.title" dense></v-text-field>
-              <v-text-field label="Subtitle" v-model="skillset.subtitle" dense></v-text-field>
-              <v-textarea label="Description" v-model="skillset.description" rows="6" dense></v-textarea>
-              <v-row justify="end" class="mt-2">
-                <v-btn color="success" @click="saveEdit('skillset')">Kaydet</v-btn>
-                <v-btn color="error" class="ml-2" @click="cancelEdit('skillset')">İptal</v-btn>
-              </v-row>
-            </template>
-            <template v-else>
-              <v-row>
-                <v-col cols="12" md="6">
-                  <v-card-title class="text-h6">{{ skillset.title }}</v-card-title>
-                  <v-card-subtitle class="text-subtitle-1">{{ skillset.subtitle }}</v-card-subtitle>
-                </v-col>
-                <v-col cols="12" md="6" class="d-flex align-center">
-                  <p>{{ skillset.description }}</p>
-                </v-col>
-              </v-row>
-            </template>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
+
   </v-container>
 </template>
 
@@ -174,14 +175,7 @@ const store3 = useSkillsetStore()
 
 const educationCards = ref([])
 const experienceCards = ref([])
-const skillset = ref({
-  title: '',
-  subtitle: '',
-  description: '',
-  skillsetUrl: '',
-  category: '',
-  isEditing: false
-})
+const skillset = ref([])
 
 async function loadData() {
   await store.fetchEducations()
@@ -191,7 +185,7 @@ async function loadData() {
   experienceCards.value = store2.experiences.map(card => ({ ...card, isEditing: false }))
 
   await store3.fetchSkillsets()
-  skillset.value = { ...store3.skillset, isEditing: false } 
+  skillset.value = store3.skillset.map(item => ({ ...item, isEditing: false }))
 }
 
 function addbutton(section) {
@@ -257,9 +251,11 @@ function toggleEdit(section, index) {
     educationCards.value[index].isEditing = true
   } else if(section == 'experience') 
     experienceCards.value[index].isEditing = true
-  else if (section === 'skillset') {
-    skillset.value.isEditing = true
+  if (section === 'skillset') {
+    skillset.value.forEach(item => item.isEditing = true)
   }
+
+
 }
 
 function cancelEdit(section, index) {
@@ -275,7 +271,7 @@ function cancelEdit(section, index) {
     }
   }
   else if (section === 'skillset') {
-    skillset.value.isEditing = false
+    skillset.value = store3.skillset.map(item => ({ ...item, isEditing: false }))
   }
 }
 
@@ -331,33 +327,30 @@ async function saveEdit(section, index) {
       alert('Kaydetme sırasında bir hata oluştu.')
     }
   } 
-    else if (section === 'skillset') {
-      const card = skillset.value
-      const payload = {
-        title: card.title?.trim() || '',
-        subtitle: card.subtitle?.trim() || '',
-        description: card.description?.trim() || '',
-        skillsetUrl: card.skillsetUrl || '',
-        category: card.category || ''
-      }
-      console.info('Gönderilen payload:', payload)
-      try {
-        if (!card.id) {
-          const newData = await store3.postSkillset(payload)
-          skillset.value = { ...newData.data, isEditing: false }
-        } else {
-          await store3.updateSkillset(card.id, payload)
-          skillset.value.isEditing = false
+  if (section === 'skillset') {
+    try {
+      for (const item of skillset.value) {
+        const payload = {
+          title: item.title?.trim() || '',
+          subtitle: item.subtitle?.trim() || '',
+          description: item.description?.trim() || '',
+          skillsetUrl: item.skillsetUrl || '',
+          category: item.category || ''
         }
-      } catch (error) {
-        console.error('Skillset kaydedilirken hata oluştu:', error)
-        alert('Kaydetme sırasında bir hata oluştu.')
+
+        if (!item.id) {
+          await store3.postSkillset(payload)
+        } else {
+          await store3.updateSkillset(item.id, payload)
+        }
       }
+      skillset.value.forEach(item => item.isEditing = false)
+    } catch (error) {
+      console.error('Skillset kaydedilirken hata oluştu:', error)
+      alert('Kaydetme sırasında bir hata oluştu.')
     }
-
+  }
 }
-
-
 function formatDate(date) {
   if (!date) return ''
   const d = new Date(date)
